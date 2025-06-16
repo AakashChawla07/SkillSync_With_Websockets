@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Network - SkillSync{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-users me-2"></i>Your Network</h2>
+            <a href="{% url 'find_peers' %}" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i>Find Peers
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Tech Buddies -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-user-friends me-2"></i>Tech Buddies ({{ accepted_buddies.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if accepted_buddies %}
+                <div class="row">
+                    {% for buddy in accepted_buddies %}
+                        {% if buddy.requester == user %}
+                            {% with buddy.receiver as buddy_user %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            {% if buddy_user.profile_picture %}
+                                                <img src="{{ buddy_user.profile_picture.url }}" class="rounded-circle mb-3" width="60" height="60" alt="Profile">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-user text-white fa-2x"></i>
+                                                </div>
+                                            {% endif %}
+                                            <h6 class="card-title">{{ buddy_user.get_full_name|default:buddy_user.username }}</h6>
+                                            <p class="card-text text-muted small">
+                                                {% for domain in buddy_user.userdomain_set.all %}
+                                                    <span class="badge bg-light text-dark me-1">{{ domain.domain.name }}</span>
+                                                {% endfor %}
+                                            </p>
+                                            <a href="{% url 'chat_view' buddy_user.id %}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-comments me-1"></i>Chat
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% else %}
+                            {% with buddy.requester as buddy_user %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            {% if buddy_user.profile_picture %}
+                                                <img src="{{ buddy_user.profile_picture.url }}" class="rounded-circle mb-3" width="60" height="60" alt="Profile">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-user text-white fa-2x"></i>
+                                                </div>
+                                            {% endif %}
+                                            <h6 class="card-title">{{ buddy_user.get_full_name|default:buddy_user.username }}</h6>
+                                            <p class="card-text text-muted small">
+                                                {% for domain in buddy_user.userdomain_set.all %}
+                                                    <span class="badge bg-light text-dark me-1">{{ domain.domain.name }}</span>
+                                                {% endfor %}
+                                            </p>
+                                            <a href="{% url 'chat_view' buddy_user.id %}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-comments me-1"></i>Chat
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                    <h5>No Tech Buddies Yet</h5>
+                    <p class="text-muted">Connect with peers who share your interests!</p>
+                    <a href="{% url 'find_peers' %}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Find Peers
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <!-- Pending Requests -->
+        {% if pending_requests %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6><i class="fas fa-clock me-2"></i>Pending Requests</h6>
+            </div>
+            <div class="card-body">
+                {% for request in pending_requests %}
+                <div class="d-flex align-items-center justify-content-between border rounded p-2 mb-2">
+                    <div class="d-flex align-items-center">
+                        {% if request.requester.profile_picture %}
+                            <img src="{{ request.requester.profile_picture.url }}" class="rounded-circle" width="40" height="40" alt="Profile">
+                        {% else %}
+                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                        <h6 class="card-title mx-2 mb-0">{{ request.requester.get_full_name|default:request.requester.username }}</h6>
+                    </div>
+                    <div>
+                        <form method="post" action="{% url 'respond_request' request.id 'accept' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-success btn-sm" type="submit">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'respond_request' request.id 'reject' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-danger btn-sm" type="submit">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Network Stats -->
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-bar me-2"></i>Network Stats</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tech Buddies:</span>
+                    <strong>{{ accepted_buddies.count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Pending Requests:</span>
+                    <strong>{{ pending_requests.count }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Mentorships:</span>
+                    <strong>{{ mentorship_requests.count|default:0 }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function respondToRequest(requestId, action) {
+    if (confirm(`Are you sure you want to ${action} this request?`)) {
+        console.log(`${action} request ${requestId}`);
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

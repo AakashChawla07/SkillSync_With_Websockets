@@ -1,4 +1,4 @@
-#### SkillSync
+# SkillSync
 
 SkillSync is a web-based platform for college coding society members to track their technical learning journeys, discover peers with similar interests, and receive structured mentorship from seniors.
 

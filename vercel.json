@@ -1,0 +1,23 @@
+{
+    "builds": [{
+        "src": "SkillSync/wsgi.py",
+        "use": "@vercel/python",
+        "config": { "maxLambdaSize": "15mb", "runtime" : "python3.13" }
+    },
+    {
+          "src": "build_files.sh",
+        "use": "@vercel/static-build",
+        "config": { "distDir":"staticfiles_build" }  
+    }
+],
+    "routes": [
+        {
+            "src": "/templates/(.*)",
+            "dest": "/templates/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "SkillSync/wsgi.py"
+        }
+    ]
+}
